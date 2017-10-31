@@ -1,0 +1,86 @@
+
+notmain.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	20001000 	andcs	r1, r0, r0
+   4:	00000021 	andeq	r0, r0, r1, lsr #32
+   8:	00000027 	andeq	r0, r0, r7, lsr #32
+   c:	00000027 	andeq	r0, r0, r7, lsr #32
+  10:	00000027 	andeq	r0, r0, r7, lsr #32
+  14:	00000027 	andeq	r0, r0, r7, lsr #32
+  18:	00000027 	andeq	r0, r0, r7, lsr #32
+  1c:	00000027 	andeq	r0, r0, r7, lsr #32
+
+00000020 <reset>:
+  20:	f000 f808 	bl	34 <notmain>
+  24:	e7ff      	b.n	26 <hang>
+
+00000026 <hang>:
+  26:	be00      	bkpt	0x0000
+  28:	e7fd      	b.n	26 <hang>
+
+0000002a <PUT32>:
+  2a:	6001      	str	r1, [r0, #0]
+  2c:	4770      	bx	lr
+
+0000002e <GET32>:
+  2e:	6800      	ldr	r0, [r0, #0]
+  30:	4770      	bx	lr
+
+00000032 <dummy>:
+  32:	4770      	bx	lr
+
+00000034 <notmain>:
+  34:	b510      	push	{r4, lr}
+  36:	2400      	movs	r4, #0
+  38:	1c20      	adds	r0, r4, #0
+  3a:	3401      	adds	r4, #1
+  3c:	f7ff fff9 	bl	32 <dummy>
+  40:	2c0a      	cmp	r4, #10
+  42:	d1f9      	bne.n	38 <notmain+0x4>
+  44:	20d0      	movs	r0, #208	; 0xd0
+  46:	4903      	ldr	r1, [pc, #12]	; (54 <notmain+0x20>)
+  48:	0600      	lsls	r0, r0, #24
+  4a:	f7ff ffee 	bl	2a <PUT32>
+  4e:	2000      	movs	r0, #0
+  50:	bd10      	pop	{r4, pc}
+  52:	46c0      	nop			; (mov r8, r8)
+  54:	12345678 	eorsne	r5, r4, #120, 12	; 0x7800000
+
+Disassembly of section .ARM.attributes:
+
+00000000 <.ARM.attributes>:
+   0:	00002c41 	andeq	r2, r0, r1, asr #24
+   4:	61656100 	cmnvs	r5, r0, lsl #2
+   8:	01006962 	tsteq	r0, r2, ror #18
+   c:	00000022 	andeq	r0, r0, r2, lsr #32
+  10:	726f4305 	rsbvc	r4, pc, #335544320	; 0x14000000
+  14:	2d786574 	cfldr64cs	mvdx6, [r8, #-464]!	; 0xfffffe30
+  18:	0600304d 	streq	r3, [r0], -sp, asr #32
+  1c:	094d070c 	stmdbeq	sp, {r2, r3, r8, r9, sl}^
+  20:	14041201 	strne	r1, [r4], #-513	; 0xfffffdff
+  24:	17011501 	strne	r1, [r1, -r1, lsl #10]
+  28:	1a011803 	bne	4603c <notmain+0x46008>
+  2c:	Address 0x000000000000002c is out of bounds.
+
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	3a434347 	bcc	10d0d24 <notmain+0x10d0cf0>
+   4:	35312820 	ldrcc	r2, [r1, #-2080]!	; 0xfffff7e0
+   8:	392e343a 	stmdbcc	lr!, {r1, r3, r4, r5, sl, ip, sp}
+   c:	732b332e 			; <UNDEFINED> instruction: 0x732b332e
+  10:	33326e76 	teqcc	r2, #1888	; 0x760
+  14:	37373131 			; <UNDEFINED> instruction: 0x37373131
+  18:	2029312d 	eorcs	r3, r9, sp, lsr #2
+  1c:	2e392e34 	mrccs	14, 1, r2, cr9, cr4, {1}
+  20:	30322033 	eorscc	r2, r2, r3, lsr r0
+  24:	35303531 	ldrcc	r3, [r0, #-1329]!	; 0xfffffacf
+  28:	28203932 	stmdacs	r0!, {r1, r4, r5, r8, fp, ip, sp}
+  2c:	72657270 	rsbvc	r7, r5, #112, 4
+  30:	61656c65 	cmnvs	r5, r5, ror #24
+  34:	00296573 	eoreq	r6, r9, r3, ror r5

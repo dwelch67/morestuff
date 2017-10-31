@@ -1,0 +1,189 @@
+
+This repo is not about assembly language...but...two things.
+
+I used to learn a new instruction set by writing a disassembler, not
+as a product or fully functional but by using a working assembler
+the documentation on the instruction set I would learn to be able to
+write the instruction in assembly language to get the machine code I
+was after and the dissassembly would allow me to fully understand
+the nuances of the instruction.  Another way to do this is to write
+an instruction set simulator.  What is the difference between a
+simulator and emulator?  Dont know, dont care, can insure that some
+percentage of the time you see those words it is used wrong (as far
+as a big percentage of the rest of population thinks).  A while back
+I wrote what at the time was a complete thumb instruction set simulator
+doesnt do the armv7-m thumb2 extensions and perhaps not even all
+the armv6-m thumb2 extensions, I may have no thumb2 extensions.  But
+for this directory I wrote this from scratch (well no I didnt I cut
+and pasted) only the instructions needed for this example.
+
+You can sometimes find an instruction set simulator for the target
+you are learning.  Now sometimes the simulator is bad to be using or
+broken or not like hardware completely but there may be some simple
+things you get past before trying hardware.  If you have the source
+code you can add printfs or other things to debug at a level you cant
+see in hardware.  Certainly getting booting from reset for example.
+
+You should already know this but there is no reason to assume that
+any two compilers or any two compiler settings or versions of a compiler
+will produce the same program, the same list of instructions, from
+the high level source code.  So your gcc might not produce the same
+exact program and if it uses an instruction I have not simulated then
+well you have to add it.  So this is one where my output might not
+match yours.  I have left the .list file from my build and the .srec
+version of the binary
+https://en.wikipedia.org/wiki/SREC_(file_format)
+that you can write a program to parse or figure out how to use
+the objcopy tool to get from srec to bin and then your output will
+match mine.
+
+./sim notmain.bin
+88 bytes read
+--- 0x00000020: 0xF000
+--- 0x00000022: 0xF808 bl 0x00000034
+--- 0x00000034: 0xB510 push {r4,lr}
+--- 0x00000036: 0x2400 movs r4,#0x00
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000038: 0x1C20 movs r0,r4
+--- 0x0000003A: 0x3401 adds r4,#0x01
+--- 0x0000003C: 0xF7FF
+--- 0x0000003E: 0xFFF9 bl 0x00000032
+--- 0x00000032: 0x4770 bx r14
+--- 0x00000040: 0x2C0A cmp r4,#0x0A
+--- 0x00000042: 0xD1F9 bne 0x00000037
+--- 0x00000044: 0x20D0 movs r0,#0xD0
+--- 0x00000046: 0x4903 ldr r1,[PC+#0xC] ;@ 0x54
+--- 0x00000048: 0x0600 lsls r0,r0,#0x18
+--- 0x0000004A: 0xF7FF
+--- 0x0000004C: 0xFFEE bl 0x0000002A
+--- 0x0000002A: 0x6001 str r1,[r0,#0x0]
+0x12345678
+--- 0x0000002C: 0x4770 bx r14
+--- 0x0000004E: 0x2000 movs r0,#0x00
+--- 0x00000050: 0xBD10 pop {r4,pc}
+--- 0x00000024: 0xE7FF b 0x00000026
+--- 0x00000026: 0xBE00 bkpt 0x00
+
+This also demonstrates how the world works. The C language has some
+assumptions about the world before you start running the code defined
+by the C code.  The two most basic things are make sure the stack
+pointer is initialized, and then branch to the entry point.  I
+intentionally dont use main(); as that is just an arbitrary name and
+there are compilers that add extra stuff if they see it, YMMV.  This
+bit of asm is called the bootstrap.  There are more bootstrap tasks
+that I dont normally do, zero .bss and copy .data to ram.  Primarily
+I dont like the notion even though I believe in globals, but more
+important to get those things to work you have to make a more
+complicated linker script which is toolchain and possibly version
+specific, which I would prefer to avoid here.  I dont find it necessary
+for my software.
+
+PUT32/GET32.  I have had compilers fail to produce the exact
+instruction desired with
+
+#define SHOWWORD (*((volatile unsigned char *)0xD0000000))
+
+It gets even worse with structs and unions, not only wandering into
+implementation defined which means dont expect the code to port.  I
+strongly recommend you never ever use structures or worse unions
+across compile domains. (never ever point them at memory/addresses)
+Likewise never ever use bitfields.  You have been warned, it may take
+as many as 10-20 years to get bitten by then you will be deep in your
+habits and possibly unable to dig out or dig the project out.  You
+can always use a define to turn PUT32/GET32 into a volatile pointer
+but you cant go the other way if the volatile pointer doesnt work.
+
+Calling dummy burns some cycles but it also changes it from being dead
+code
+for(ra=0;ra<10;ra++) continue;
+without needing a volatile.
+
+These also demonstrate calling asm from C.
+
+Liker scripts can get slightly simpler than this, but this is pretty
+good.
+
+MEMORY
+{
+    rom : ORIGIN = 0x00000000, LENGTH = 0x1000
+    ram : ORIGIN = 0x20000000, LENGTH = 0x1000
+}
+SECTIONS
+{
+    .text : { *(.text*) } > rom
+    .rodata : { *(.rodata*) } > rom
+    .bss : { *(.bss*) } > ram
+}
+
+-Ttext=0x00000000 -Tdata=0x20000000 works but unfortunately gnu
+linker has some issues, if the .text for example hits a magic size which
+would be within the flash size you might find in your mcu.  It will or
+can put this gap in the middle of your binary, say you have 0x4000
+bytes of .text it might have 0x1000 then a gap of a few thousand hex
+and then the rest, making this hole.  When using the linker script
+it doesnt do this and also allows you to put limits.
+
+Is all the freestanding stuff required?  I think it used to be but
+newer versions of the tools it doesnt seem to be absolutely required.
