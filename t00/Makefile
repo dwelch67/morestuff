@@ -11,7 +11,6 @@ clean:
 	rm -f *.bin
 	rm -f *.o
 	rm -f *.elf
-	rm -f *.list
 
 vectors.bin : vectors.s
 	$(ARMGNU)-as $(AOPS) vectors.s -o vectors.o

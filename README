@@ -1,3 +1,200 @@
 
 Yet another attempt at baremetal.
 
+I have attempted to start this many times, will see if I make it this
+time.  Aiming for a Python the Hard Way type approach, for the most
+part there will just be working code, and maybe a few comments describing
+or showing the output.  How and why it worked is mostly on you to read
+the documentation.
+
+Baremetal (bare-metal, bare metal) programming means no operating system
+dont get confused by what the cloud community is calling baremetal
+(somewhat incorrectly as they are adding at least one operating system
+not getting rid of all of them).  Microcontrollers are our first though
+but not long ago most programming was this way.  DOS was mostly
+baremetal for example.  We are writing programs that boot the chip from
+reset, and directly access the peripherals to make them do things.
+
+Why bother?  Various reasons, fun, freedom, performance (sometimes
+but sometimes you are not as good as you think), program size,
+etc.  Why not just use the libraries provided or some RTOS that has
+been ported?  I highly recommend you try those things too.  Some of
+this is very personal, but there are times and people that find the
+already ported RTOS the way to go (how is that different than just
+writting an applicaiton on an OS?) or some already written by the
+vendor libraries.  The chip vendor employees or contractors know
+what they are doing better than we do right?  Well not necessarily
+here is an example of some real chip vendor code:
+
+/* We can only erase on 4KB boundaries */
+while (addr & 0xFFF)
+{
+    addr--;
+}
+
+Very disturbing...
+
+At the end of the day if you are making alarm clocks or tv remote
+controls by the millions, it is partially your responsibility to get
+this software right, ideally never to need to be touched again once
+production starts.  If you wrote 100 lines of code and relied on 100,000
+lines of someone elses code, and you didnt read through it and "own" it
+well your boss may not take that for an excuse in particular if
+the cost per unit was say $4 and now it is going to cost an additional
+$2 per unit to run them through a fixture to re-program them once
+someone fixes the bugs.  You could certainly make your own mistakes or
+you could rely on other folks and their mistakes, so there is no right
+answer, but I highly recommend you try the various options available
+to you from a chip vendor or other parties for a product, choose your
+own path and periodically re-evaluate as each chip vendor, each software
+product evolves over time.  Each chip vendors solutions are different
+for one vendor you may like their solution another you may not (see
+above).  (And once you see my code you might hate it as well and you
+are welcome to your opinion)  They have a product to sell and the
+product and the software tools, etc need to evolve, they need to feel
+new or follow some current fad, to try to get you to buy their stuff
+their library for a particular product should ideally be good enough
+to survive the decade or so they want that product to live, but they
+will unfortunately have periodic do-overs, and sometimes go from good
+usable libraries to junk, or from junk to good usable libraries.
+
+Professionaly you may hate a solution but if the boss says, then it
+is your choice to quit or go along.  So by having tried many things
+periodically on your own time or at work, you are that much better
+position to succeed professionally.  Pinch your nose and just take
+a bite.
+
+These tutorials though are my pay-it-forward for the folks who have
+left code and information that got me to this point.  I have and can
+work on chips at the HDL level, have written and run code to test
+chips in sim pre-silicon, post silicon, bootloaders, etc.  The whole
+range, which not a lot of folks get to do.  I have been very lucky.  So
+while you may hate my self-taught programming style, I still have
+decades of experience that you can pick a nibble here or there from.
+And that is part of this, just like diving into a chip vendors
+solution with their gui tools on their chosen supported operating
+system and so on to get the full experience of that solution, you can
+dive into what I have presented here.  Tolerate it just enough to pick
+out nuggets of information.  This is in no way intended to be a set of
+libraries, I have zero interest in that, this is a teach them to fish
+you are not supposed to be taking away my code as-is, you are to be
+writing your own, or to take mine and modify it until it is your own
+if there are portions you like as-is, so be it, enjoy, this code is
+derived from code I use every day at work and at home for fun.
+
+Someone has to know how this stuff works in order to keep computing
+going.  Without folks at this level there cant be new chips, there
+cant be new phones with new chips (who is going to write the DDR init?
+Who is going to write the bootloader, etc?), and we cant create and
+maintain compilers.  There may be one of us per N companies or maybe
+one of us per every 100,000 developers, but you can if you want be that
+one of us.  The primary benefit is freedom, usually the only rules we
+have to conform to are that the code has to work with the logic, hand
+in hand as a team.  Beyond that it is on you, you make it too complicated
+or fancy and it fails, on you. Make it too ridgid that it never builds
+or ports, that is on you.
+
+So if this is not an interested to you then move on find some other
+fun thing to read or try.
+
+Amost zero percent of baremetal programming is about programming.
+Almost all of it is about reading documentation and interpreting it.
+Assume that all documentations wrong in that at least a little bit or
+a lot of it is wrong, usually a little bit.  The folks that write the
+documentation are rarely the folks that know the product at that level.
+You might have docs from the best technical writers on the planet but
+they are getting their information directly or through various layers
+of hearsay between the designers of a block or programmers sucessfully
+programming that block and the techical writer in some form of
+intermediate documentation.  Expect there to be errors, expect them to
+trip you up, and expect to have to hack your way through.  Expect the
+example programs to not be written specifically for that chip, there
+will be code that sets or clears bits not in the documentation you have,
+is that because it is an undocumented secret or because it is a bit
+used in a chip designed before or after this one where the bit is used
+and this code is generic, or some other answer?
+
+If you work your way into the chip business instead of using ideally
+aready tested chips in production to being involved pre-silicon then
+not only are the docs wrong (well they are not written yet usually)
+but the logic may be broken too.  And that just adds to the fun,
+an otherwise perfectly correct code based on the docs and chip design
+but the chip implementation has a bug and crash/hang.  Sometimes you
+get lucky and find a chip/processor bug once it is in production, in
+either case these can be nasty.
+
+Short answer, never write thousands of lines of code at a time without
+running them.  I tend to write a few to a few dozen at a time and run
+them.  If the hardware is not ready for 6 months and the software is
+due on 8 I will wait the 6 months for the hardware and do all the software
+in the two months, can get more debugged code written at a few lines
+of code at a time, than to try to write it all up front without something
+real to run against.  When you have tens of thousands of lines of code
+against a new design, debugging is exponetially longer.  Sometimes there
+are tools that can help, but no single one of them is perfect, all
+have flaws and there are bugs that any particular debug tool cannot
+find.  YMMV.
+
+Start with t00 and work your way numerically up from there, dont
+expect these to be linear or sequential, I will probably skip some.
+Unfortunately the nature of the beast is the boards and chips available
+today are not going to be available forever, some will, some wont I
+dont want you to have to solder or design boards and have them built
+so that actually increases the problem.  The chips will often be
+available for many many years, sometimes a decade or more, while the
+evaluation boards used to get customers to design in that chip, are
+relatively short lived.  So if I expected you to solder or I was doing
+the soldering and selling the boards, I could control the life expecancy
+although the price would be significantly higher than you can buy even
+the more overpriced boards out there.  I dont solder very fast and
+cannot compete with machines.  You will want to buy some of these boards
+in order to move forward.  Depending on the price I often buy at least
+two, because every so often, no matter how much experience you have you
+end up bricking one or letting some smoke out from time to time.  There
+is the cost of shipping too, I hate that when buying a $10 board you
+end up with $8 in shipping, so buy two and the shipping per board cuts
+in half, but you overal spent more money $28 instead of $18 but you
+feel less ripped off...
+
+With time and more tools that you need to buy, and taking the risk of
+getting scammed, there are a number of $2 items on ebay from asia that
+you can use for your projects or learning.  But we need to work our
+way up to that, each little problem has the potential for complete
+failure for some individual.  And what I hate to see is an individual
+that has the potential giving up, and not just giving up but giving
+up in a way that they preach that this form of programming or whatever
+is bad and evil and should never be done.  Simply because they got
+trapped in something and couldnt get out of that was probably not as
+bad as they thought, just needed a nudge.  We have all been through
+this and know the value of making it through something.  Sure we cannot
+all pilot a helicopter, a fair percentage of us would crash and burn,
+but some of the best pilots had a few mistakes they had to work through
+maybe a crash or two, but didnt give up, found help or figured it out.
+This approach will hopefully get you through by going relatively slow
+ideally portable and simple code, not overly ghee-whiz with the language
+or the tools. keep it simple stupid.
+
+I have been overly verbose here and in the next README, but very quickly
+it may be almost nothing but the code and some comments on the expected
+output.  It is then on you to read the documentation to see where I
+found the addresses or bits I am messing with and reading what they
+do.
+
+Some chip vendors docs are better than others, some boards are better
+than others, depending of course on what you define better to mean.
+Right now st.com is a big player in the MCU market and they have a
+huge number of boards to play with.  ti.com has always been there too
+and have a few boards, and we may touch on those, I struggle to pick
+the first and second and Nth board to talk through as there are many
+good candidates.  Even starting with cortex-m is a choice and I hope
+to venture off into other perfectly adequate processors and chips.
+There are reasons why these different choices are all available to us
+right now, one chip or vendor has not completely replaced all others,
+each fairly sucessful product has value, and for us each of those has
+something for us to learn.  If you are/were a computer scientist you
+might have learned a number of languages with the idea of choosing the
+right language for the task.  Well I can fumble through languages other
+than C, do know many assembly languages and instruction sets.  But think
+of this as there are a number of perfectly good MCUs out there and
+picking the right one for the job, and not necessarily limiting yourself
+to one brand or product or family.

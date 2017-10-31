@@ -1,1 +1,217 @@
-tools
+
+The zeroth tutorial is about documentation.
+
+Websites are always subject to change, this ARM site has been
+consistent for some time, so hopefully that will remain.
+
+http://infocenter.arm.com
+
+Along the left expand ARM architecture
+Expand Reference Manuals
+Expand ARMv6-M Reference Manual
+In there is a pdf.
+As of this writing the document number is
+ARM DDI0419D
+Over time the last letter may change the D becoming an E, etc.
+Will see.
+
+The ARMv5 Reference Manual is a good starting point for full sized
+32 bit ARM cores, is direcly derived from the original ARM ARM before
+too many cores existed (ARM7TDMI (armv4t), etc).
+
+Later you will be needing to expand the Cortex-M series processors
+To find the Cortex-M0 or M0+ or M4 or others.
+
+The file named TOOLCHAIN in this directory should also help you find
+an arm-whatever- toolchain, arm-none-eabi, etc...This directory needs
+only binutils but very quickly we will use C as this is not meant to
+have an assembly language requirement (I will provide what you need).
+Although you will want to be able to at least read a little bit of it
+(the instructions are in the ARM ARM (ARM Architectural Reference Manual)
+above) as you need to confirm the toolchain did what you wanted vs what
+you told it to do.  We want the wanted and told it to do to be equal.
+
+Building this directories code results in this dissassembly.
+
+arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m0 vectors.s -o vectors.o
+arm-none-eabi-ld -o vectors.elf -Ttext=0x00000000 vectors.o
+arm-none-eabi-objdump -D vectors.elf > vectors.list
+arm-none-eabi-objcopy --srec-forceS3 vectors.elf -O srec vectors.srec
+arm-none-eabi-objcopy vectors.elf vectors.bin -O binary
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:   20001000    andcs   r1, r0, r0
+   4:   0000000d    andeq   r0, r0, sp
+   8:   0000000e    andeq   r0, r0, lr
+
+0000000c <reset>:
+   c:   e7ff        b.n e <done>
+
+0000000e <done>:
+   e:   e7fe        b.n e <done>
+
+
+In the ARM ARM (has to be for a cortex-m not for a cortex-a or r) you
+will find terms like exception, exception number, and the vector table.
+
+I am telling you too much already, but notice that the vector table
+defaults to 0x00000000 or at least assume that.  The first WORD will
+be used to initialize the stack pointer, the remaining so many are
+exception vectors and it tells you that the least significant bit has
+to be set.
+
+So as above our reset address is 0x0000000C if we set the lsbit that
+makes it 0x0000000D which is what we need in the table.  And that is
+what we have, but the next exception does not have that bit set.
+
+There are other more verbose ways to do this, but putting .thumb_func
+before a label makes that a function label and when we put reset in
+the vector table the toolchain sets the lsbit for me.  reset consumed
+the .thumb_func and I didnt put another one in in front of done: so
+it didnt get setup right.  Try that yourself.
+
+You are welcome to read up on gnu assembler for ARM and see what the
+rest of that source code is doing.
+
+Whenver setting up a new project, or whenever your new project doesnt
+work use the arm-whatever-objdump tool to disassemble and see
+that the addresses are where we want them in particular the
+vector table.
+
+We are booting from a flash presumably so there is no notion of entry
+point, the entry point is where the logic is looking for the vector
+table and that is what matters, to keep the gnu toolchain from
+complaining, a toolchain primarily used for making programs that run
+on operating systems, that do have entry points, we define _start
+as global, we are not using it.
+
+Note that the disassembler dissassembled the vector table and if you
+look at all of the output it disassembled debug strings and other
+things.  Too many folks get confused by that, you wont because you
+know better, that is just a 32 bit value, a vector in our vector table.
+The disassembler is just trying to do what we asked, disassemble.  You
+can ignore that part, the real instructions do get disassembled and
+we might care some day.
+
+This is what you should be visualizing when you see the above
+
+00000000 <_start>:
+   0:   20001000
+   4:   0000000d
+   8:   0000000e
+
+0000000c <reset>:
+   c:   e7ff        b.n e <done>
+
+0000000e <done>:
+   e:   e7fe        b.n e <done>
+
+Three static values and then some code.
+
+I am being overly verbose in this section because getting your processor
+booted is your first challenge, and first place to fail miserably.  You
+dont get this right you dont boot, game over.
+
+Now in the microcontroller world some chips have features to make our
+lives easier, for example some chips have a built in bootloader, a flash
+we normally cannot reprogram but they can, and the chip vendor has
+placed this bootloader there for us.  Normally you go through some
+reset and other pin gyration or something like that, or maybe there is a
+"strap" pin or pins, that when reset is released if these pins are
+strapped high or low for that moment in time then per the chip docs
+it may boot one way or another.  It is not difficult to have the logic
+such that you can decode different things for the same address, think
+in C
+
+
+unsigned int fun ( unsigned int strap, unsigned int address )
+{
+    switch(strap)
+    {
+        case 0:
+        {
+            if(address<0x1000) return(flash[address+0x0100000);
+            break;
+        }
+        case 1:
+        {
+            if(address<0x1000) return(flash[address+0x0200000);
+            break;
+        }
+        case 2:
+        {
+            if(address<0x1000) return(flash[address+0x0300000);
+            break;
+        }
+    }
+    return(flash[address]);
+}
+
+the processor thinks it is reading address 0x00000004 for example
+but depending on our strapping we may actually return address 0x02000004
+which might be the chip vendors bootloader.  One of the other base
+addresses might be our application.
+
+If we tell the linker to build for a different base address
+
+arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m0 vectors.s -o vectors.o
+arm-none-eabi-ld -o vectors.elf -Ttext=0x02000000 vectors.o
+arm-none-eabi-objdump -D vectors.elf > vectors.list
+arm-none-eabi-objcopy --srec-forceS3 vectors.elf -O srec vectors.srec
+arm-none-eabi-objcopy vectors.elf vectors.bin -O binary
+
+Our vector table now contains different values.
+
+02000000 <_start>:
+ 2000000:   20001000
+ 2000004:   0200000d
+ 2000008:   0200000e
+
+0200000c <reset>:
+ 200000c:   e7ff        b.n 200000e <done>
+
+0200000e <done>:
+ 200000e:   e7fe        b.n 200000e <done>
+
+We may know by reading that for a particular chip the user application
+lives at address 0x02000000 (all the time) and based on how we release
+the chips reset and straps the logic may map address 0x00000004 to
+0x02000004, where it sees 0x0200000D which it turns into running code
+starting at address 0x0200000C which is where our code lives all the time
+0x02000000 plus some offset.  Some chips you can change what 0x00000000
+points to on the fly so you really want your program out of the way.
+
+So you will see in these examples this happening, even though the ARM
+documentation says the vector table is at 0x00000000 we build for
+0x01000000 for example, the missing link is the chip documentation
+telling us that under certain conditions the address decoder is turning
+the ARM read at address 0x00xxxxxx to 0x01xxxxxx.  So long as we
+continue reading we could also build for 0x00xxxxxx.  But you have to
+be careful, say we use the built in bootloader, which is probably
+mapped into the 0x00xxxxxx address space, and we use it to write our
+application at say 0x01xxxxxx, if we are a little too honest in telling
+the bootloader what our address is, say we say 0x00xxxxxx the bootloader
+might reject it or try to erase that which is where it lives (likely
+wont work) or who knows what.  You may also run into situations where
+only a wee bit of the address space is mapped like the C example above
+and they expect you to move to some other offset in the vector table.
+You might have 64KBytes of flash, but only 8192 bytes are mapped so that
+you can switch to the application adddress space immediately.
+
+Some chips allow you boot from flash as is generally required (there
+are exceptions) and then change what the vector table address space
+points to, and make it ram for example.  An operating system type
+desire so that you can change vectors post compile time, at run time.
+But you could also just as easily solve this on your own with a second
+table, the primary fixed in flash table branches to software that then
+examines a table in ram which the RTOS or whatever can modify as
+applications register for an interrupt.  As the ARM cores have evolved
+they solved that for us in some cores but not all, you have to read
+the documentation.  Some have a vector table offset register that starts
+off at zero, then once running you can change that register to point
+at some other address space possibly ram.
+
+Sticking with ARM cortex-m for now, other processors are variations on
+the them but not necessarily exact.
